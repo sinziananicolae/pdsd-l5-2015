@@ -4,11 +4,11 @@ import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-
 import ro.pub.cs.systems.pdsd.lab05.addressbook.R;
 import ro.pub.cs.systems.pdsd.lab05.addressbook.general.Constants;
 import ro.pub.cs.systems.pdsd.lab05.addressbook.general.Utilities;
 import ro.pub.cs.systems.pdsd.lab05.addressbook.model.Contact;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.LoaderManager;
 import android.content.CursorLoader;
@@ -27,6 +27,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+@SuppressLint("ViewHolder")
 public class ContactAdapter extends BaseAdapter implements LoaderManager.LoaderCallbacks<Cursor> {
 	
 	Activity context;
@@ -54,6 +55,10 @@ public class ContactAdapter extends BaseAdapter implements LoaderManager.LoaderC
     private static final int STARRED_INDEX = 4;
     private static final int TIMES_CONTACTED_INDEX = 5;
     private static final int LAST_TIME_CONTACTED_INDEX = 6;
+    
+    public final static int CONTACT_VIEW_TYPES     = 2;
+    public final static int CONTACT_VIEW_TYPE_ODD  = 0;
+    public final static int CONTACT_VIEW_TYPE_EVEN = 1;
 	
     private static final String SELECTION = "(" + Contacts.DISPLAY_NAME + " NOTNULL) AND ("
     		+ Contacts.HAS_PHONE_NUMBER + "=1) AND ("
@@ -98,7 +103,12 @@ public class ContactAdapter extends BaseAdapter implements LoaderManager.LoaderC
 	public View getView(int position, View convertView, ViewGroup parent) {
 		Contact contact = (Contact)getItem(position);
 		LayoutInflater inflater = (LayoutInflater)context.getLayoutInflater();
-		View contactView = inflater.inflate(R.layout.contact_view, parent, false);
+		View contactView; // = inflater.inflate(R.layout.contact_view, parent, false);
+		if (position % 2 == 0) {
+			  contactView = inflater.inflate(R.layout.contact_view_even, parent, false);
+			} else {
+			  contactView = inflater.inflate(R.layout.contact_view_odd, parent, false);
+			}
 		ImageView contactPhotoImageView = (ImageView)contactView.findViewById(R.id.contact_photo_image_view);
 		TextView contactNameTextView = (TextView)contactView.findViewById(R.id.contact_name_text_view);
 		TextView contactTimesContactedTextView = (TextView)contactView.findViewById(R.id.contact_times_contacted_text_view);
@@ -263,6 +273,19 @@ public class ContactAdapter extends BaseAdapter implements LoaderManager.LoaderC
 			return Contacts.getLookupUri(id, lookupKey);
 		}
 		return Uri.EMPTY;
+	}
+	
+	@Override
+	public int getViewTypeCount() {
+	  return CONTACT_VIEW_TYPES;
+	}
+	 
+	@Override
+	public int getItemViewType(int position) {
+	  if (position % 2 == 0) {
+	    return CONTACT_VIEW_TYPE_ODD;
+	  }
+	  return CONTACT_VIEW_TYPE_EVEN;
 	}
 
 }
